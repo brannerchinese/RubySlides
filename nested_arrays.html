@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Nested Arrays
+## David Branner
+### 20160120
+
+---
+
+## Topics I'll cover
+--
+
+1. A Common Problem with Arrays
+--
+
+1. Creating Nested Arrays
+--
+
+1. Does a Nested Array Contain a Certain Element?
+--
+
+1. Rotating ("Transposing") an Array
+
+---
+
+## A Common Problem with Arrays
+
+Problem:
+
+```ruby
+[1] pry(main)> a = []
+=> []
+[2] pry(main)> b = a
+=> []
+[3] pry(main)> a << 5
+=> [5]
+[4] pry(main)> b
+=> [5]
+```
+--
+
+This happens because `a` and `b` are actually the same array. Change one and you change "both". 
+--
+
+(I put both in quotes because there aren't actually two — there's only one.)
+
+---
+
+## A Common Problem with Arrays, cont'd
+
+Solution:
+
+```ruby
+[5] pry(main)> c = []
+=> []
+[6] pry(main)> d = c.dup
+=> []
+[7] pry(main)> c << 5
+=> [5]
+[8] pry(main)> d
+=> []
+```
+--
+
+By replicating an array with the method `dup`, we are making `d` totally separate from `c`.
+--
+
+
+But note that this only works for flat arrays. If you have a nested array, you'll have to `dup` each subelement, and so on down to any sub-sub-elements, etc.
+--
+
+```ruby
+[98] pry(main)> first_array # let's pretend it was defined earlier
+=> [[nil, nil, nil, nil], [nil, nil, nil, nil], [nil, nil, nil, nil]]
+[99] pry(main)> second_array = first_array.map {|row| row.dup}
+=> [[nil, nil, nil, nil], [nil, nil, nil, nil], [nil, nil, nil, nil]]
+```
+
+---
+
+## Creating Nested Arrays
+--
+
+
+Here's one way of creating a nested array of certain dimensions:
+--
+
+```ruby
+[1] pry(main)> rows, cols = 3, 4
+=> [3, 4]
+[2] pry(main)> a = [[nil] * cols ] * rows
+=> [[nil, nil, nil, nil], [nil, nil, nil, nil], [nil, nil, nil, nil]]
+``` 
+--
+
+Translation (reading from the outside in):
+--
+
+
+ 1. create `rows` number of rows
+--
+
+ 1. each row should consist of a subarray
+--
+
+ 1. inside each subarray should be `cols` number of `nil`s
+--
+
+
+But look what happens if I try to push something into one sub-array:
+--
+
+```ruby
+[3] pry(main)> a[0] << 5
+=> [nil, nil, nil, nil, 5]
+[4] pry(main)> a
+=> [[nil, nil, nil, nil, 5], [nil, nil, nil, nil, 5], [nil, nil, nil, nil, 5]]
+```
+--
+
+It's the same problem — `a[0]` isn't a single sub-array, but _each_ of the four sub-arrays of `a`.
+
+---
+
+## Creating Nested Arrays, cont'd.
+
+Instead, use a more verbose but more explicit way of creating a nested array:
+--
+
+```ruby
+[1] pry(main)> rows, cols = 3, 4
+=> [3, 4]
+[2] pry(main)> e = Array.new(rows) { Array.new(cols) }
+=> [[nil, nil, nil, nil], [nil, nil, nil, nil], [nil, nil, nil, nil]]
+```
+--
+
+Translation (reading the `{}` block second):
+--
+
+ 1. create an array with `rows` number of rows
+--
+
+ 1. inside each row, create a new (distinct) array with `cols` number of columns
+--
+
+
+And now push something into a sub-array:
+--
+
+```ruby
+[3] pry(main)> e[0] << 5
+=> [nil, nil, nil, nil, 5]
+[4] pry(main)> e
+=> [[nil, nil, nil, nil, 5], [nil, nil, nil, nil], [nil, nil, nil, nil]]
+```
+--
+
+_This_ behaves as we had expected.
+
+---
+
+## Creating Nested Arrays, cont'd.
+
+One more question: 
+--
+
+How can we tell whether an array was created one way or the other?
+--
+
+
+We can't. We have to read the code and find out, or else do experiments.
+
+---
+
+## Does a Nested Array Contain a Certain Element?
+--
+
+
+If an array is nested, in order to find out if it contains a certain element, ask yourself: 
+--
+
+**Do I mean a certain element? or a certain subelement?**
+--
+
+```ruby
+[1] pry(main)> b = (0..11).to_a.each_slice(rows).map {|row| row}
+=> [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]]
+```
+--
+
+Array `b` contains element `[0, 1, 2]`, but not _sub_-element `0`:
+--
+
+```ruby
+[2] pry(main)> b.include?(0)
+=> false
+[3] pry(main)> b.include?([0, 1, 2])
+=> true
+```
+--
+
+You could ask: does subarray `b[0]` contain element (subelement of `a`) `0`?
+--
+
+```ruby
+[4] pry(main)> b[0].include?(0)
+=> true
+```
+--
+
+In other words, look for it in exactly the place you'd expect to find it — which in this case is not the top-level elements of the array.
+
+---
+
+## Does a Nested Array Contain a Certain Element?, c'd
+
+Other approaches:
+--
+
+
+ 1. Flatten the list and look for your item there:
+
+```ruby
+[1] pry(main)> b.flatten
+=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+[2] pry(main)> b.flatten.include?(0)
+=> true
+[3] pry(main)> c = b.flatten
+=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+[4] pry(main)> c.include?(0)
+=> true
+```
+--
+
+
+A problem: flattening a list means going through the whole list, which is a linear-time, O(n), operation.
+--
+
+
+Also, in order to use this flattened array `c`, you have to hold onto it for the long term, and keep it current with any changes in `b`.
+--
+
+
+That seems like a recipe for confusion and error.
+
+---
+
+## Does a Nested Array Contain a Certain Element?, c'd
+
+Other approaches, cont'd:
+--
+
+
+ 2. Return any element containing the subelement you want:
+--
+
+```ruby
+[1] pry(main)> b.select {|subarray| subarray.include?(0)}
+=> [[0, 1, 2]]
+``` 
+--
+
+What is the time-complexity? `select` has linear time-complexity, because you have to traverse each element. 
+--
+
+There are four elements in `b`. 
+--
+
+Then you have to traverse each subelement of each subarray — that's three subelements apiece, or 12 in all. 
+--
+
+In other words, the time-complexity is also O(n).
+--
+
+
+ 3. You can use `any?` to answer `true` or `false`
+--
+
+, instead of returning a subarray:
+--
+
+```ruby
+[2] pry(main)> b.select {|subarray| subarray.include?(0)}.any?
+=> true
+```
+--
+
+If you do, the search will stop as soon as the first case of `subarray.include?(0)` returns true. 
+--
+
+Method `any?` is said to "short-circuit" the traversal of an array. 
+--
+
+It wants to be able to answer `true` as soon as it knows it can, and then stop. 
+--
+
+Only if the answer is `false` does it have to traverse the whole array.
+
+---
+
+## Rotating ("Transposing") an Array
+--
+
+
+In case you ever want to rotate an array:
+--
+
+```ruby
+[1] pry(main)> b = (0..11).to_a.each_slice(rows).map {|row| row}
+=> [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]]
+[2] pry(main)> b.transpose
+=> [[0, 3, 6, 9], [1, 4, 7, 10], [2, 5, 8, 11]]
+``` 
+--
+
+
+Or, to see the rows _printed_ more like actual rows:
+--
+
+```ruby
+[3] pry(main)> b.transpose.each {|row| p row}
+[0, 3, 6, 9]
+[1, 4, 7, 10]
+[2, 5, 8, 11]
+=> [[0, 3, 6, 9], [1, 4, 7, 10], [2, 5, 8, 11]]
+```
+--
+
+The return value is still the same array, regardless of how you print it.
+
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

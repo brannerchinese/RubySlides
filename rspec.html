@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# RSpec
+## David Branner
+### 20160120
+
+---
+
+## What is covered here:
+--
+
+ 1. Basic Patterns
+--
+
+
+ 1. Expectations
+--
+
+
+ 1. Matchers in an Expectation
+--
+
+
+ 1. Use of `let` to Instantiate an Object Transiently.
+--
+
+
+ 1. Two High-Level Things to Keep in Mind
+---
+
+## Basic patterns
+--
+
+
+The most basic pattern we use looks like this:
+--
+
+```ruby
+require_relative '<path>'
+
+describe <object> do
+  <some example or examples>
+end
+```
+--
+
+
+ * `<path>` represents the path of the main file being tested
+--
+
+
+ * `<object>` stands either for an actual object or a descriptive string.
+--
+
+ * `<some example or examples>` can be:
+--
+
+
+   * `it` blocks
+--
+
+
+   * nested `describe` blocks
+--
+
+
+   * `pending` blocks, to indicate that the example is not ready to be run yet.
+--
+
+
+In greater detail:
+
+---
+
+## Basic patterns, cont'd
+
+```ruby
+describe <object or string> do
+
+  # "it" block(s)
+  it 'does something described here' do
+    <expectation>
+  end
+
+  # nested "describe" block(s)
+  describe 'does something described here' do
+    it 'does something described (nested) here' do
+      <expectation>
+    end
+  end
+
+  # "pending" block(s)
+  pending 'some condition not yet met' do
+    it 'description' do
+      <expectation>
+    end
+  end
+
+end
+```
+--
+
+The blocks marked `<expectation>` above hold the real details of each test.
+
+---
+
+## Expectations
+--
+
+
+An expectation is normally a comparison of two objects — below, `<obj 1>` and `<obj 2>`
+--
+
+The syntax of an "expectation" looks like this:
+--
+
+ * `expect(<obj 1>)`**`.to`** ` <matcher> <obj 2>`
+
+ * `expect(<obj 1>)`**`.not_to`** ` <matcher> <obj 2>`
+--
+
+
+(**Digression**: 
+--
+Instead of `expect()`, with an object as argument, you can also use `expect {<expression>}`, with an expression inside the block-brackets. 
+--
+This is important when the [change matcher](https://www.relishapp.com/rspec/rspec-expectations/docs/built-in-matchers/change-matcher) is being used. 
+--
+In this type of test, we evaluate `<obj 2>` twice, once before and once after `<expression>` is evaluated — 
+--
+we are asking whether `<obj 2>` changes as the result of `<expression>`. 
+--
+Please see the [docs](https://www.relishapp.com/rspec/rspec-expectations/docs/built-in-matchers/change-matcher) if this kind of case is of interest.)
+--
+
+
+The custom is to make `<obj 1>` the thing you are testing, and `<obj 2>` its expected form. 
+--
+So you are posing the challenge: "is the observed object or expression what we expect it to be?"
+
+---
+
+## Matchers in an Expectation
+--
+
+Here the `<matcher>` is the key thing, and we should look at some of the options we have in selecting various sorts of matchers. 
+--
+There are quite a number of matchers, and most of them can be used in a variety of ways, which it will take time to learn. 
+--
+I've included links to current RSpec examples on RelishApp.com. The actual RSpec documentation begins at http://rspec.info/documentation/3.4/rspec-core/.
+--
+
+ * Equality: [`eq`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/equality-matchers)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'equals "expected"' do
+       expect(actual).to eq(expected)
+     end
+   end
+   ```
+--
+
+ * Identity: [`be`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/be-matchers)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'is the same object as "expected"' do
+       expect(actual).to be(expected)
+     end
+   end
+   ```
+
+---
+
+## Matchers in an Expectation, cont'd
+
+
+ * Within a range: [`cover`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/cover-matcher)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'falls within the range (1..10)' do
+       expect(1..10).to cover(3)
+     end
+   end
+   ```
+--
+
+   (Notice that the "actual" seems to be `<obj 2>` (`3`, at right) in this case.
+--
+
+
+ * Object exists: [`exist`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/exist-matcher)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'exists' do
+       expect(earth).to exist
+     end
+   end
+   ```
+---
+
+## Matchers in an Expectation, cont'd
+
+
+ * Object possesses attributes: [`have_attributes`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/have-attributes-matcher)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'has particular attributes "name" and "age"' do
+       expect(person).to have_attributes(:name => "Spanky", :age => 93)
+     end
+   end
+   ```
+--
+
+ * An error will be raised: [`raise_error`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/raise-error-matcher)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'raises a known error' do
+       expect { 1 / 0 }.to raise_error(ZeroDivisionError)
+     end
+   end
+   ```
+---
+
+## Matchers in an Expectation, cont'd
+
+
+ * Approximately equal (important for floating point values, which are rarely precise): [`be_within`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/be-within-matcher)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'falls within a range of tolerance' do
+       expect(probability).to be_within(0.05).of(0.9)
+     end
+   end
+   ```
+--
+
+ * Any output or specific output: [`output`](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers/output-matcher)
+--
+
+   ```ruby
+   describe <object or string> do
+     it 'outputs "I am here"' do
+       expect { print('I am here') }.to output('I am here').to_stdout
+     end
+   end
+   ```
+--
+
+Fuller coverage of the matchers at [RelishApp.com](https://www.relishapp.com/rspec/rspec-expectations/v/3-4/docs/built-in-matchers) and [in the official docs](http://rspec.info/documentation/3.4/rspec-expectations/#Built-in_matchers).
+---
+
+## Use of `let` to Instantiate an Object Transiently
+
+A bedrock principle of testing is that each test must be independent of every other.
+--
+
+
+So if you are testing an object that has to be created first, it should be created once, afresh, for each test case.
+--
+
+
+In Ruby we do that using the `let` keyword. 
+--
+`let` ensures a new copy of the object for each test case. 
+--
+Here is an example from Cookies and Ovens:
+--
+
+```ruby
+describe Cookie do
+  let(:cookie) { Cookie.new }
+
+  describe '#done' do
+    it 'should display false at initialization' do
+      expect(cookie.done).to eq false
+    end
+  end
+
+  describe '#cooking_time?' do
+    it 'should display 10 at initialization' do
+      expect(cookie.cooking_time).to eq 10
+    end
+  end
+end
+```
+---
+
+## Use of `let` to Instantiate an Object Transiently, cont'd
+
+What is `let` actually doing here?
+--
+
+```ruby
+describe Cookie do
+  let(:cookie) { Cookie.new }
+
+  describe '#done' do
+    it 'should display false at initialization' do
+      expect(cookie.done).to eq false
+    end
+  end
+
+  describe '#cooking_time?' do
+    it 'should display 10 at initialization' do
+      expect(cookie.cooking_time).to eq 10
+    end
+  end
+end
+```
+--
+
+It is creating a function called `cookie` (and naming it as a symbol). 
+--
+The function `cookie` carries out whatever is inside the block passed to `let`. 
+--
+
+
+(The block could be many lines long, if desired.)
+--
+
+`cookie` will be run once for each `describe` block. 
+--
+
+
+So in this case you'll get an entirely new `Cookie` instance for each test.
+
+---
+
+## Two High-Level Things to Keep in Mind
+--
+
+ 1. RSpec meshes with the feature Ruby's culture that expects code to be readable by non-programmers. 
+--
+
+
+    That's why it's so discursive and so long to write. 
+--
+
+ 1. "RSpec" stands for "Ruby specification". 
+--
+
+
+    In other languages the collection of tests would be called a "test suite". 
+--
+
+    Here we say it is a "spec", and that means — literally — that the tests constitute the specification of how the code should work.
+
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>
+
+
+<!--
+
+https://github.com/nyc-bobolinks-2015/ruby-drill-the-self-keyword-challenge/blob/Guillermo_Zino/source/self_spec.rb
+
+https://github.com/nyc-bobolinks-2015/ruby-drill-accessor-methods-challenge/blob/Zino_AND_Guillermo/source/company_employee_spec.rb
+
+
+--
+
+
+ 1. 
+--
+
+
+ 1. Readability
+
+
+-->

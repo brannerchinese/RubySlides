@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Modeling Things in Code
+## David Branner
+### 20160127
+
+---
+
+# What these slides cover
+
+ 1. Strategy for Handling a New Challenge
+--
+
+
+ 1. Separation of Concerns
+--
+
+
+ 1. Separation of Concerns in the Spec
+--
+
+
+ 1. Model-View-Controller (MVC) Structure
+---
+
+## Strategy for Handling a New Challenge
+
+When you face a new challenge, don't start coding at once. First, think.
+--
+
+
+ 1. Read the assignment all the way through. Make note of what the assignment says your code should be able to do at each point. That information turns into code in two ways:
+--
+
+
+    2. Deciding how many classes we have, how they should be related to one another, and what parts they have.
+--
+
+    2. Decide what tests there should be. Ideally, tests define what a project is supposed to do. Tests _don't_ only ask whether the project does things correctly — they're the actual specification of what is supposed to happen.
+--
+
+ 1. Read the spec, if there is one, and see if any tests that are already there cause you to change your mind about what you were already thinking about how to design your project.
+--
+
+
+ 1. Read any `runner.rb` or similar files and see if it gives you any other ideas about what is supposed to happen.
+---
+
+## Strategy for Handling a New Challenge, cont'd
+--
+
+Once the basic parts of the project and their relationships are becoming clear in your mind, think about how they should be organized into actual files:
+
+ 1. Examine the organization of the project filesystem and look at what else may be implied by what is given to you.
+--
+
+
+ 1. Using directories, empty files, and comments, outline the structure of what you want to do. 
+--
+You can create an empty file (that has only a name) at the command line using `touch`:
+--
+
+    ```bash
+    touch empty_file.rb
+    ```
+--
+
+    You can create a directory at the command line with `mkdir` ("make dear"):
+--
+
+    ```bash
+    mkdir i_am_a_directory
+    ```
+--
+
+ 1. If you need more time to think, play with any tools provided, or that you think you will need.
+--
+
+
+ 1. Finally, start coding.
+
+---
+
+## Separation of Concerns
+--
+
+
+Ask yourself whether your code is respecting the principle of "separation of concerns":
+--
+
+ 1. Each object/class should have only one responsibility, which is summarized in its name. Choose names thoughtfully.
+--
+
+
+ 1. Any methods and attributes in an object should be connected with that responsibility. 
+--
+
+
+    If a method or attribute you have in mind seems to involve two different objects, pause and ask yourself which one is more appropriate. 
+--
+
+    Try hard not to let one object infringe on the responsibilities of another.
+--
+
+ 1. As our projects get bigger and more complicated, we should put each class in its own file. 
+--
+
+
+    Files are normally named in snake case (`snake_case.rb`).
+---
+## Separation of Concerns in the Spec
+--
+
+Please extend separation of concerns to the Spec!
+--
+
+
+How? 
+--
+By writing many small test files, rather than just one.
+--
+
+
+Each small test file should test one particular object, or maybe just one type of functionality that a particular object displays.
+--
+
+
+If you have many small test files, you can run tests a few at a time, rather than all at once:
+--
+
+```ruby
+rspec spec/tree_age_spec.rb
+rspec spec/tree_produce_fruit_spec.rb
+```
+
+etc.
+--
+
+
+By convention, the name of each test file ends in `_spec.rb`, so if it gets mixed up with other things you can easily tell what it is. But test files should all go in a `spec` directory.
+
+---
+
+## Model-View-Controller (MVC) Structure
+--
+
+
+This is a good time to start thinking about "Model-View-Controller" (MVC) organization. 
+--
+
+
+I like to think of them on analogy with a company:
+--
+
+ 1. The "model" classes are where all business decisions are made. 
+--
+
+
+    Most of the programs you have written in the past fall almost entirely into this category.
+--
+
+ 1. The "view" class is the public relations office — it handles communicating with the outside world, and never makes any business decisions. 
+--
+
+
+    (But it can make decisions connected with communication.)
+--
+
+ 1. The "controller" class manages contact between the view and the model, so that they interact as little as possible. 
+--
+
+
+    The controller is the part of the code that is actually instantiated and run. It, in turn, will instantiate the model and view classes and handle the objects that result.
+
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

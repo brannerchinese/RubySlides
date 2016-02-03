@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Inheritance
+## David Branner
+### 20160122
+
+---
+
+# What these slides cover
+
+ 1. Inheritance
+
+ 1. Overriding methods
+
+ 1. Chaining methods
+
+ 1. Things to remember about `super`
+
+ 1. Terminology Review
+
+---
+
+## Inheritance
+--
+
+When you subclass (inherit from another class), like this:
+--
+
+```ruby
+class NewClass < OldClass
+```
+--
+
+you are making the statement "`NewClass` is a kind of `OldClass`". 
+--
+
+**It's a statement of identity.** 
+--
+Programmeers of object-oriented languages often ask themselves: "Can I say that **"`X` is a `Y`"** 
+--
+or **"`X` is one type of `Y`"**? 
+--
+If so, `X` can inherit from `Y`.
+--
+
+
+For example, when you make `PearTree` class that inherits from the `FruitTree` class, you are saying that a `PearTree` is a type of `FruitTree`. 
+--
+
+
+When you make a `Fruit` class that does _not_ inherit from the `FruitTree` class, you are saying that a `Fruit` is not a type of `FruitTree`, although you are leaving open the possibility that an instance of `FruitTree` may contain one or more instances of `Fruit`. 
+--
+
+
+Object-Oriented Programming (OOP) is a way of modeling things and ideas from the real world in the virtual world. Inheritance is a key element of that.
+
+
+In contrast, when you `include` a module, it is like packing a toolset in your toolbox — you are not making a statement about the identity of your toolbox; you're just adding tools.
+
+---
+
+## Inheritance, cont'd
+--
+
+
+When you subclass you get all the methods and attributes of the superclass (parent class), as well as all of its methods and attributes, all the way up to the parent of all parents, `Object`.
+--
+
+
+If you want to add your own methods and attributes to your new class, you will have those in addition to all the inherited ones.
+--
+
+
+Technically speaking, attributes aren't inherited, only methods. But in practice, it doesn't make any difference because attributes that are defined in any inherited methods will be initialized when the subclass is instantiated.
+--
+
+
+If you like, you can replace ("override") inherited methods or modify them.
+
+---
+
+## Overriding methods
+--
+
+Here is an example of overriding — we subclass `Array` and change the `to_s` method to give us a surprise. First, look at the normal behavior of `Array.to_s`:
+--
+
+```ruby
+[1] pry(main)> [1, 2, 3].to_s
+=> "[1, 2, 3]"
+```
+--
+
+Now proceed:
+--
+
+```ruby
+[2] pry(main)> class NewArray < Array
+[2] pry(main)*   def to_s
+[2] pry(main)*     'surprise!'
+[2] pry(main)*   end  
+[2] pry(main)* end  
+=> :to_s
+```
+--
+
+Test it in action:
+--
+
+```ruby
+[3] pry(main)> n = NewArray.new([1, 2, 3])
+=> [1, 2, 3]
+[4] pry(main)> n.to_s
+=> "surprise!"
+```
+
+---
+
+## Overriding methods, cont'd
+--
+
+
+If your class's immediate parent doesn't have the method (or attribute) you want to use, Ruby will follow "method lookup" (or "method name resolution"), looking gradually up the chain of inheritance — class to superclass — until it finds a method with the correct name.
+--
+
+
+The immediate parent class doesn't have to have a method with the name you are looking for — all that matters is that some superclass up the chain of subclassing has it.
+--
+
+The class nearest to your class is the one whose method will be used.
+
+---
+
+## Chaining methods
+--
+
+If you want to inherit a method but add some functionality to it, that is called "chaining".
+--
+
+
+Chaining is done with the `super` keyword. That postpones inheriting the superclass's version of the method until the moment `super` appears. Example:
+--
+
+```ruby
+[1] pry(main)> class NewArray < Array
+[1] pry(main)*   def to_s  
+[1] pry(main)*     puts 'first, surprise! afterwards...'    
+[1] pry(main)*     super    
+[1] pry(main)*   end    
+[1] pry(main)* end  
+=> :to_s
+```
+
+Now try it out:
+--
+
+```ruby
+[2] pry(main)> n = NewArray.new([1, 2, 3])
+=> [1, 2, 3]
+[3] pry(main)> n.to_s
+first, surprise! afterwards...
+=> "[1, 2, 3]"
+```
+
+---
+
+## Things to remember about `super`
+--
+
+
+1. You don't need `super` unless you want to make changes to a method you are inheriting. 
+--
+
+
+   Inheritance already gives you all the methods, complete, that exist in the chain of inheritance.
+--
+
+
+   If the only line of code you have in a method is `super`, be sure you know what you are using it for. 
+--
+(Example: subclassing a private method makes the method public by default.)
+--
+
+
+1. `super` can be used with any method or methods.
+--
+
+
+   There is no limit to the number of methods you can use it on in a given class.
+--
+
+
+1. In practice, you will often see `super` used in the `initialize` method (the "constructor"), to individualize the details of the subclass somewhat before (or after) constructing the instance following the model of the superclass.
+--
+
+
+1. If the method takes arguments, `super` takes those arguments, too.
+
+<!-- qqq TODO: composition -->
+<!-- qqq TODO: making private method public -->
+<!-- qqq TODO: order of method-declaration doesn't matter -->
+
+<!-- qqq
+
+composition: making modules and classes more modular — serving a more narrowly defined purpose — and then "composing" (combining) their functionality in the larger program
+
+
+MVC: Most of what we used to consider the program goes into the Model. We separate out the Viewer (user interface), and we create a Controller to communicate between the Model and the Viewer. The viewer doesn't do any processing. Can have multiple views. The Model is stripped of all user-interaction.
+
+public vs. private vs. protected
+
+-->
+
+---
+
+## Terminology Review
+
+ 1. **subclass** class X
+--
+: to make a new class that inherits from class X
+--
+
+
+ 1. **superclass**
+--
+: parent class
+--
+
+
+ 1. **`Object`**
+--
+: the ulimate parent of all classes
+--
+
+
+ 1. **override** a method
+--
+: to replace (entirely) an inherited method
+--
+
+
+ 1. **OOP**
+--
+: object-oriented programming
+--
+
+
+ 1. **chaining**
+--
+: partially overriding a method but also inheriting the rest of it, using `super`
+--
+
+
+ 1. **method lookup**
+--
+
+ (also "method name resolution")
+--
+: procedure for determining the definition of a method 
+--
+_at the moment it is to be executed_ (rather than when the code is parsed)
+--
+
+
+ 1. **constructor**
+--
+: the `initialize` method, which actually brings into being an instance of the class
+
+ 1. **super**
+--
+: a keyword that initiates a search for methods and attributes in ancestor-class that will be added to the current class, for the purpose of modifying them in the current class.
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

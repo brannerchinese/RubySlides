@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Enumerable Objects
+## David Branner
+### 20160119                                                                    
+
+
+---
+
+### What these slides cover
+
+1. **`pry`**
+--
+
+2. Iteration and enumerable objects
+--
+
+3. Iterator methods in the `Enumerable` module
+
+---
+
+### Before anything else…
+--
+
+I recommend the use of `pry` as a REPL, instead of `irb`.
+--
+
+`pry` is a lot more sophisticated. 
+--
+
+You can install it at the command line with
+
+```bash
+gem install pry
+```
+--
+
+I normally add `pry` to the Gemfile in every Ruby project I work on, so that it's available to me there. (I'll show you how to do this later, when we begin working with Gemfiles.)
+
+---
+
+### Iteration and Enumerable Objects
+--
+
+Iteration: traversing some sequence or collection, so that each element of it is handled in turn.
+--
+
+`each` and the `for` loop are its classic expression
+--
+
+(example using a `Range`):
+--
+
+```ruby
+[1] pry(main)> (1..10).each {|i| puts i}
+```
+--
+```ruby
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+=> 1..10
+```
+--
+
+Iteration here means that the interpreter
+--
+
+ * steps through the range `(1..10)`
+--
+
+ * assigns each element to a local variable (here, `i`)
+--
+
+ * carries out the instructions in the "block" following the method `each`
+--
+
+
+N.b.: return value of `each` is always the original object passed in 
+--
+(unchanged)
+
+
+---
+
+### Iteration and Enumerable Objects, continued
+
+
+What other data structures can we use `each` on?
+--
+
+ * `Array.each`
+--
+
+ * `String.each_char` 
+--
+
+(note special form of `each`)
+--
+
+ * `Hash.each` 
+--
+
+
+Each of these is an example of an "**enumerable object**" — it can be iterated through.
+--
+
+
+What do we get by iteration through a Ruby hash?
+--
+
+```ruby
+[1] pry(main)> h = {a: 1, b: 2, c: 3}
+=> {:a=>1, :b=>2, :c=>3}
+[2] pry(main)> h.each {|i| puts i}
+a
+1
+b
+2
+c
+3
+=> {:a=>1, :b=>2, :c=>3}
+```
+--
+
+Each key _and_ each value.
+---
+
+### Iteration and Enumerable Objects, continued
+
+If we want just one (key or value), we have to assign both and then take just one:
+--
+
+
+```ruby
+[3] pry(main)> h.each {|k,v| puts k}
+a
+b
+c
+=> {:a=>1, :b=>2, :c=>3}
+[4] pry(main)> h.each {|k,v| puts v}
+1
+2
+3
+=> {:a=>1, :b=>2, :c=>3}
+```
+--
+
+
+Or we can work with key and value together:
+--
+
+```ruby
+[13] pry(main)> h.each {|k,v| puts "#{k}=>#{v}"}
+a=>1
+b=>2
+c=>3
+=> {:a=>1, :b=>2, :c=>3}
+```
+---
+
+### Iteration and Enumerable Objects, continued
+
+When using an iterator like `each`, we should always try to keep four things in mind:
+--
+
+
+1. What kind of input does it expect? 
+--
+
+2. What does it return?
+--
+
+3. Is it destructive (returns the same object it was called on, but after altering it)?
+--
+
+4. When might it be useful?
+
+---
+
+### Iterator methods in the `Enumerable` module
+
+--
+
+This module provides a whole bunch of iterator methods than can be called on any enumerable object.
+--
+
+
+Probably the most important of all is `map` (originally called `collect` in Ruby).
+
+
+```ruby
+[1] pry(main)> (0..5).map {|i| i**2}
+=> [0, 1, 4, 9, 16, 25]
+```
+--
+
+Our questions:
+--
+
+1. Input? 
+--
+
+here, a `Range`.
+--
+
+
+2. Return value? 
+--
+
+an array.
+
+3. Destructive? 
+--
+
+unclear from example — let's find out...
+
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+Is `map` destructive?
+--
+
+```ruby
+[1] pry(main)> r = (0..5)
+=> 0..5
+```
+--
+
+```ruby
+[2] pry(main)> r.map {|i| i**2}
+=> [0, 1, 4, 9, 16, 25]
+```
+--
+
+```ruby
+[3] pry(main)> r
+=> 0..5
+```
+--
+
+No, not destructive (unless you append `!`).
+--
+
+1. Input? here, a `Range`.
+--
+
+
+2. Return value? an array.
+--
+
+3. Destructive? no.
+--
+
+
+4. Used for? 
+--
+
+Any time you need to **transform a whole array into another array**. Use `each` to do a task but not construct an array.
+---
+
+### Iterator methods in the `Enumerable` module, …
+
+--
+
+[`select`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-select)
+--
+
+: The block is a condition — it determines when an element should or should not be returned.
+--
+
+
+"Give me only numbers evenly divisible by 3."
+--
+
+```ruby
+[1] pry(main)> (0..10).select {|i| i%3 == 0}
+=> [0, 3, 6, 9]
+```
+--
+
+
+Answer the four questions...
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+[`each_slice`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-each_slice)
+--
+
+: Break up the input into sub-arrays of a given size.
+--
+
+```ruby
+[1] pry(main)> a = Array.new
+=> []
+[2] pry(main)> (0..10).each_slice(3) {|i| a << i}
+=> nil
+[3] pry(main)> a
+=> [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10]]
+```
+--
+
+Four questions?
+--
+
+
+[`each_with_index`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-each_with_index)
+--
+
+: Gives you both the item and the index number.
+
+
+```ruby
+[1] pry(main)> hash = Hash.new
+=> {}
+[2] pry(main)> ('a'..'e').each_with_index {|element,index| hash[element] = index}
+=> "a".."e"
+[3] pry(main)> hash
+=> {"a"=>0, "b"=>1, "c"=>2, "d"=>3, "e"=>4}
+
+```
+--
+
+
+Four questions?
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+
+[`zip`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-zip)
+--
+
+: takes two or more arrays as input and returns subarrays of their nth elements:
+--
+
+
+```ruby
+[1] pry(main)> a, b = [1, 2, 3], ['a', 'b', 'c']
+=> [[1, 2, 3], ["a", "b", "c"]]
+[2] pry(main)> a.zip(b)
+=> [[1, "a"], [2, "b"], [3, "c"]]
+```
+--
+
+
+`zip` can take as many arrays as argument as you like.
+--
+
+
+**All the arrays after the first are passed as an argument to `zip`.**
+--
+
+
+Possible application: you have two or more sets of parallel data — a list people and a list of their addresses, for instance — and you want to match them one to the other.
+
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+[`find`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-find) 
+--
+
+: returns the first element that matches the conditions in the block.
+--
+
+
+[`find_all`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-find_all) 
+--
+
+: this is a synonym for `select` (see above), but at times it may be easier to think of than `select`. 
+--
+
+Because Ruby places value on code being readable even by non-coders, there are a number of synonyms of this sort.
+--
+
+
+[`find_index`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-find_index)
+--
+
+: Use this if you think an element occurs in an enumerable object but want to know where (the first place where).
+--
+
+Possible application: In constructing a cross-word puzzle, you not only want to know if a particular word contains a particular letter, but also which place in the word that letter occupies.
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+
+[`sort`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-sort) 
+--
+
+: Without a following block, this is just ordinary sorting. 
+--
+
+But you can also pass two arguments to a special "comparison block", and perform the sort based on the output of that block. 
+--
+
+This is an important process that also occurs in other languages, and it's worth learning.
+--
+
+
+A comparison function takes two variables and returns one of the three values -1, 0, and 1, depending on the results of the comparison, as though we were using a case statement with three cases. 
+--
+
+Here are examples using the standard "comparison operator", `<=>`:
+--
+
+
+```ruby
+[1] pry(main)> 4 <=> 5
+=> -1
+[2] pry(main)> 4 <=> 4
+=> 0
+[3] pry(main)> 4 <=> 3
+=> 1
+```
+--
+
+By inspection you can see how a comparison function chooses its return value: -1 if the first item is smaller or in some way has a lower value, 0 if congruent, and 1 if the second item is smaller or lower. 
+
+
+---
+  
+### Iterator methods in the `Enumerable` module, …                           
+--
+
+
+The standard comparison operator `<=>` is the default for `sort` if nothing is specified:
+--
+
+
+```ruby
+[1] pry(main)> [4, 2, 0, 9].sort == [4, 2, 0, 9].sort {|a,b| a<=>b}
+=> true
+```
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+<!-- -->Digression: Having a "lower value" applies to characters and strings, and to many other objects other than integers:
+--
+
+
+```ruby
+[1] pry(main)> 'A' <=> 'a'
+=> -1
+[2] pry(main)> 'A' <=> 'A'
+=> 0
+[3] pry(main)> 'a' <=> 'A'
+=> 1
+```
+--
+
+So you can sort strings using `<=>`, and you'll get capitalized before uncapitalized:
+--
+
+
+```ruby
+[4] pry(main)> ['abc', 'Abc', 'aBc', 'ABc'].sort {|a,b| a<=>b}
+=> ["ABc", "Abc", "aBc", "abc"]
+```
+--
+
+
+If you want to compare strings without considering differences of case, you can consider the `casecmp` method:
+--
+
+```ruby
+[1] pry(main)> 'A'.casecmp('a')
+=> 0
+[2] pry(main)> 'a'.casecmp('A')
+=> 0
+```
+---
+
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+
+[`sort_by`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-sort_by) 
+--
+
+: For sorting by some characteristic other than simple comparison of objects.
+--
+
+
+A common application is sorting strings by length:
+--
+
+
+```ruby
+[1] pry(main)> words = ['short', 'shorter', 'shortest', 'long']
+=> ["short", "shorter", "shortest", "long"]
+[2] pry(main)> words.sort_by { |word| word.length}
+=> ["long", "short", "shorter", "shortest"]
+```
+
+---
+
+### Iterator methods in the `Enumerable` module, …
+--
+
+
+[`reduce`](http://ruby-doc.org/core-2.3.0/Enumerable.html#method-i-reduce) 
+--
+
+: Repeating a function that acts over and over on its own last output.
+--
+
+
+`reduce` is the usual name across programming languages generally, but `inject` is the more native Ruby name. 
+--
+(I prefer to stick to more general names, myself.)
+--
+
+
+Here is an example of `reduce` in action: 
+--
+sum the lengths of words in an array:
+--
+
+```ruby
+[1] pry(main)> a = ['array', 'of', 'words', 'having', 'assorted', 'lengths']
+=> ["array", "of", "words", "having", "assorted", "lengths"]
+[2] pry(main)> a.reduce(0) { |sum, word| sum + word.length }
+=> 33
+```
+--
+
+
+What happens:
+--
+
+
+
+ * `reduce(0)` means "start with 0 as your initial value of the first variable, `sum`"
+--
+
+
+ * `reduce` passes its output to the block `{ |sum, word| sum + word.length }`
+--
+
+
+ * `sum` starts with zero, and each element of the array is passed to `word`
+--
+
+
+ * `sum` is then replaced at each step with the new value of `sum + word.length`.
+
+---
+
+class: center, middle
+
+### END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

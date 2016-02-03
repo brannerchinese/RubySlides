@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+ 
+# Recursion
+## David Branner
+### 20160120
+
+---
+
+### Outline
+
+1. What recursion is
+1. Example: Counting down from some starting number
+1. Example: The Fibonacci Series (the most famous case)
+1. Example: Comparing all elements of a series to find the maximum
+
+---
+
+### What recursion is
+--
+
+Recursion means having a program call itself.
+--
+
+
+The reason to do this is if the task can be broken conveniently into two parts:
+--
+
+1. One relatively simple action, usually leaving some remainder as yet undone.
+--
+
+1. Handling of the undone remainder, by the same program.
+--
+
+
+The top-listed part is called the "base case". The bottom-listed part is called the "recursive case". 
+--
+
+
+I'm avoiding saying "part one" and "part two" because they're not usually carried out in that order 
+--
+
+— the recursive case is carried out first, usually over and over again, and when the base case is reached, recursion stops. That's why it's called the base case. 
+--
+
+
+(Aside: if you ever study mathematical proofs, you'll find that a recursive program has the same structure as an "inductive" proof — proving that `f(k)` is true for some value of `k` is the base case, and proving that `f(k+1)` is also true, is the recursive case.)
+
+---
+
+### What recursion is, cont'd
+--
+
+
+There are two insights involved:
+--
+
+1. The recursive case shows you the insight that the problem can be solved recursively.
+--
+
+1. The base case shows you the insight as to what stops the recursion.
+--
+
+
+You need both insights.
+--
+
+
+**But to read and understand, I suggest starting with the recursive case.**
+--
+
+
+Some examples, now…
+---
+
+### Example: Counting down from some starting number
+--
+
+
+```ruby
+def countdown(items)
+  if items == 0           # Base case
+    puts "Here is the base case; we're done."
+  else
+    puts "Counting down from #{items}, and then calling recursively..."
+    countdown(items-1)    # Call recursively
+    puts "... now unwinding from recursive call at items = #{items}."
+  end
+end
+```
+--
+
+One other thing: Notice that the "now unwinding" line only starts running **after** we have hit the base case. 
+--
+
+Even though it appears in the code right after the recursive call to `countdown`, that `countdown` doesn't return until the base case has been hit.
+--
+
+
+Here's the output (next page):
+
+---
+
+### Example: Counting down from some starting number
+--
+
+
+```ruby
+[1] pry(main)> def countdown(items)
+[1] pry(main)*   if items == 0           # Base case  
+[1] pry(main)*     puts "Here is the base case; we're done."    
+[1] pry(main)*   else    
+[1] pry(main)*     puts "Counting down from #{items}, and then calling recursively..."    
+
+[1] pry(main)*     countdown(items-1)    # Call recursively    
+[1] pry(main)*     puts "... now unwinding from recursive call at items = #{items}."    
+
+[1] pry(main)*   end    
+[1] pry(main)* end  
+=> :countdown
+[2] pry(main)> countdown(5)
+Counting down from 5, and then calling recursively...
+Counting down from 4, and then calling recursively...
+Counting down from 3, and then calling recursively...
+Counting down from 2, and then calling recursively...
+Counting down from 1, and then calling recursively...
+Here is the base case; we're done.
+... now unwinding from recursive call at items = 1.
+... now unwinding from recursive call at items = 2.
+... now unwinding from recursive call at items = 3.
+... now unwinding from recursive call at items = 4.
+... now unwinding from recursive call at items = 5.
+=> nil
+```
+--
+
+
+---
+
+### Example: The Fibonacci Series 
+---
+
+### Example: The Fibonacci Series (the most famous case)
+--
+
+
+The Fibonacci Series is a [sequence of integers](https://oeis.org/A000045):
+--
+
+```
+   0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 
+   4181, 6765, 10946, 17711, 28657, 46368, 75025, 121393, 196418, 317811, 
+   514229, 832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352, 
+   24157817, 39088169, ... (from On-line Encyclopedia of Integer Sequences)
+```
+--
+
+Each one is the sum of the previous two. 
+--
+
+That means if we want the `n`th one, all we have to do is add together the `(n-1)`st and the `(n-2)`nd. 
+--
+
+How do we find the `(n-1)`st? By adding together the `(n-2)`nd and the `(n-3)`rd. And so on.
+--
+
+
+
+```ruby
+# Return the nth Fibonacci number (zero-indexed)
+def fibonacci(n)
+  if n <= 1                                   # Base case
+    puts "At base case: returning #{n}."
+    n
+  else
+    puts "Now call fibonacci(#{n-1} [#{n}-1]) and fibonacci(#{n-2} [#{n}-2])"
+    answer = fibonacci(n-1) + fibonacci(n-2)  # Call recursively
+    puts "... now unwinding from fibonacci(#{n-1}) and fibonacci(#{n-2})"
+    answer
+  end
+end```
+--
+
+Because of the amount of duplicate work involved, this is not an effective use of recursion. 
+--
+
+But it illustrates the problem well.
+
+---
+
+### Example: Comparing all elements of a series to find the maximum
+--
+
+```ruby
+# Find maximum item in "things" by comparing them, two at a time,
+# and returning the larger one.
+def find_max(things)    
+  if things.length <= 2      # Base case: end recursion if this is true.
+    a = things[0]
+    b = things[-1]
+  else                       # Otherwise, call recursively.
+    a = find_max(things.slice!(0,things.length/2))
+    b = find_max(things)
+  end    
+
+  if a < b                   # This is the only actual comparison
+    b
+  else
+    a
+  end
+end
+```
+                                                                             
+---
+
+
+class: center, middle
+
+### END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

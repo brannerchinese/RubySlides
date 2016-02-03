@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# ActiveRecord
+## David Branner
+### 20160203
+
+---
+
+### What these slides cover
+
+ 1. Object-Relational Mapping (ORM)
+--
+
+
+ 1. Basic Structure of an ActiveRecord Project
+--
+
+
+ 1. Digression: What is a Migration File Made Of?
+--
+
+
+ 1. How Do We Use `rake` to Issue Commands to ActiveRecord?
+--
+
+
+ 1. Two Other Small Points
+---
+
+### Object-Relational Mapping (ORM)
+--
+
+
+A mapping means a correspondence — one thing corresponds, item-by-item, to another.
+--
+
+
+In this case we are talking about Ruby classes ("objects") and database tables ("relations").
+--
+
+
+This is a wrapper that allows you to write Ruby and have SQL written for you, so you don't have to interact directly with the database.
+--
+
+
+It allows you to change the database software you use, without having to change your code — the ORM handles any "dialect"-changes to SQL.
+--
+
+
+The principal ORM in use with Ruby is Active Record. The theory ("Active Record Pattern") goes back to 2003; the Ruby library is called `ActiveRecord`.
+
+---
+
+### Basic Structure of an ActiveRecord Project
+--
+
+
+```tree
+.
+├── Gemfile
+├── Gemfile.lock
+├── README.md
+├── Rakefile
+├── app
+│   ├── controllers
+│   ├── models
+│   └── views
+├── config
+│   └── environment.rb
+├── db
+│   ├── data
+│   │   └── legislators.csv
+│   ├── migrate
+│   └── seeds.rb
+├── lib
+│   └── sunlight_legislators_importer.rb
+├── runner.rb
+└── spec
+    ├── models
+    └── spec_helper.rb
+```
+
+---
+
+### Basic Structure of an ActiveRecord Project, cont'd
+
+
+We are in **MVC territory**: the **`app`** directory contains separate subdirectories for each of those types of class. 
+
+```tree
+├── app
+│   ├── controllers
+│   ├── models
+│   └── views
+```
+--
+
+
+**`spec`**: notice that in this case we are preparing mainly for tests of `model` classes:
+
+```tree
+└── spec
+    ├── models
+    └── spec_helper.rb
+```
+--
+
+There is an RSpec configuration file `spec_helper.rb` which sets "fixtures" to be run before and after each test. 
+--
+Fixtures often serve to ensure test-independence.
+--
+
+
+<!-- -->**`config`**: project-wide configuration files, usually provided for you
+
+```tree
+├── config
+│   └── environment.rb
+```
+
+---
+
+### Basic Structure of an ActiveRecord Project, cont'd
+
+
+
+**`lib`**: utility programs go here
+--
+ — for instance, this is a program to load data from a file into the database
+--
+
+```tree
+├── lib
+│   └── sunlight_legislators_importer.rb
+```
+--
+
+
+**`db`**: Three parts:
+
+```tree
+├── db
+│   ├── data
+│   │   └── legislators.csv
+│   ├── migrate
+│   └── seeds.rb
+```
+--
+
+ * `data`: subdirectory where data files may go
+--
+
+
+ * `seeds.rb`: a program to get starting data into the database
+--
+
+
+ * `migrate`: subdirectory containing "migration" files
+--
+ — a migration file is a Ruby program to "migrate" (update) a database. 
+--
+Migrate means modify a schema — adding/modifying/dropping tables. 
+--
+
+
+`db` may also contain databases for the project. 
+---
+
+### Digression: What is a Migration File Made Of?
+--
+
+
+Here is a sample migration file, `20150713103800_create_people.rb`, from one of the challenges: 
+
+```ruby
+class CreatePeople < ActiveRecord::Migration
+  def change
+    create_table :people do |t|
+      t.string :first_name
+      t.string :last_name
+
+      t.timestamps(null: false)
+    end
+  end
+end
+```
+--
+
+ * it is an actual Ruby program
+--
+
+
+ * filename starts with timestamp: `20150713103800` = Jul 13, 2015, 10:38 a.m.
+--
+
+
+ * filename contains snake-case version (`create_table`) of camel-case class name (`CreatePeople`)
+--
+ — this is a requirement
+--
+
+
+ * class inherits from the class `Migration` in the `ActiveRecord` module (we know it's a module because we use `::` with it)
+--
+
+
+ * all our classes will contain a `change` method; they may contain others
+---
+
+### Digression: What is a Migration File Made Of? (…)
+
+```ruby
+class CreatePeople < ActiveRecord::Migration
+  def change
+    create_table :people do |t|
+      t.string :first_name
+      t.string :last_name
+
+      t.timestamps(null: false)
+    end
+  end
+end
+```
+--
+
+ * Within method `change` we have a "definition" called `create_table`. 
+--
+You can see all the available definitions [in the docs](http://guides.rubyonrails.org/active_record_migrations.html#using-the-change-method).
+--
+
+
+ * Here, `create_table` creates a table named `people`, using a `do` loop to iterate through each field (column). 
+--
+
+
+   By convention, we use the dummy variable `t` as the variable, which is supposed to suggest "table"
+--
+ — even though we are only dealing with the unique fields of a single table, so iteration is a somewhat misleading name for what we are doing.
+---
+
+### Digression: What is a Migration File Made Of? (…)
+
+```ruby
+class CreatePeople < ActiveRecord::Migration
+  def change
+    create_table :people do |t|
+      t.string :first_name
+      t.string :last_name
+
+      t.timestamps(null: false)
+    end
+  end
+end
+```
+--
+
+Within the `create_table` definition we are defining three fields:
+--
+
+
+   * `first_name`, which the database needs to know is a string
+--
+ (notice that ActiveRecord wants a symbol for the table-name)
+--
+
+
+   * `last_name`, another string
+--
+
+   * `timestamps`, which ActiveRecord will unpack into
+--
+
+
+     * `created_at`
+--
+
+     * `updated_at`
+--
+
+     and populated for us with the current system time.
+---
+
+### Digression: What is a Migration File Made Of? (…)
+
+```ruby
+class CreatePeople < ActiveRecord::Migration
+  def change
+    create_table :people do |t|
+      t.string :first_name
+      t.string :last_name
+
+      t.timestamps(null: false)
+    end
+  end
+end
+```
+--
+
+The timestamps are both passed a hash as argument, which ActiveRecord will tell the database means `NOT NULL` in SQL. 
+--
+
+
+These timestamps can then never be left blank.
+--
+
+
+`null: false` can be used with other fields, as well, as we choose.
+--
+
+
+Note that Ruby relationships are defined in models, not in migrations — they are called "associations" and we'll deal with them later.
+--
+
+
+
+
+
+Take some time and read up about the available definitions [in the docs](http://guides.rubyonrails.org/active_record_migrations.html#using-the-change-method).
+
+---
+
+### (returning to) Basic Structure of an ActiveRecord Project, cont'd
+--
+
+
+What else do we have in an ActiveRecord project?
+--
+
+```tree
+.
+├── Gemfile
+├── Gemfile.lock
+├── README.md
+├── Rakefile
+├── app
+│   ├── controllers
+│   ├── models
+│   └── views
+├── config
+│   └── environment.rb
+├── db
+│   ├── data
+│   │   └── legislators.csv
+│   ├── migrate
+│   └── seeds.rb
+├── lib
+│   └── sunlight_legislators_importer.rb
+├── runner.rb
+└── spec
+    ├── models
+    └── spec_helper.rb
+```
+---
+
+### Basic Structure of an ActiveRecord Project, cont'd
+--
+
+
+**Rakefile**: 
+--
+a script containing namespace- and class-definitions for use by `rake` at the command line.
+--
+
+
+(`rake` means: `make` for Ruby — `make` is a scripting tool for compiling and building software projects).
+--
+
+
+It's instructive to open a Rakefile and look at what's inside of it.
+--
+
+
+You'll see that it defines commands that we can use with `rake` when we call `rake` at the command line.
+---
+
+### Basic Structure of an ActiveRecord Project, cont'd
+--
+
+
+What _else_ do we have in an ActiveRecord project?
+--
+
+```tree
+.
+├── Gemfile
+├── Gemfile.lock
+├── README.md
+├── Rakefile
+├── app
+│   ├── controllers
+│   ├── models
+│   └── views
+├── config
+│   └── environment.rb
+├── db
+│   ├── data
+│   │   └── legislators.csv
+│   ├── migrate
+│   └── seeds.rb
+├── lib
+│   └── sunlight_legislators_importer.rb
+├── runner.rb
+└── spec
+    ├── models
+    └── spec_helper.rb
+```
+---
+
+### Basic Structure of an ActiveRecord Project, cont'd
+
+
+**Gemfile** and **Gemfile.lock**:
+--
+
+
+A Gemfile lists the gems required for the project.
+--
+
+
+ * You can edit your `Gemfile` in order to change the gem-versions your project uses (you can also omit the actual version number and only put in the name of the gem). 
+--
+
+
+   These gems will be installed if you enter `bundle install` (or, by default, `bundle`) at the command line. 
+--
+**This is normally the first command you use when setting up an ActiveRecord project.**
+
+
+ * If changing the `Gemfile` doesn't seem to "stick" — if the same old gem-versions still seem to be in use after `bundle install` — **try deleting the `Gemfile.lock`**.
+--
+
+
+ * At the command line: `gem list` will list all gems on system for current Ruby version.
+--
+
+
+ * At the command line: `bundle exec gem list` is the same as `gem list`, but only for the local project.
+---
+
+### How Do We Use `rake` to Issue Commands to ActiveRecord?
+--
+
+**Create** a database:
+--
+
+```ruby
+bundle exec rake db:create
+```
+--
+
+
+Dev Bootcamp machines have an alias `be` for `bundle exec`.
+--
+
+
+**Perform migrations** (set up and modify the database):
+--
+
+```ruby
+bundle exec rake db:migrate
+```
+--
+
+
+Note that migration files are loaded in sort-order by creation-date, based on the timestamps at the beginning of each filename.
+--
+
+
+"**Seed**" the database with starting data:
+--
+
+```ruby
+bundle exec rake db:seed
+```
+---
+
+### How Do We Use `rake` to Issue Commands to ActiveRecord? (…)
+
+
+**Rollback** (undo) migrations:
+--
+
+```ruby
+bundle exec rake db:rollback
+```
+--
+
+
+Rollback doesn't drop (delete) the database; it restores the database to some earlier version, before particular migrations have been run.
+--
+
+
+To **drop**:
+--
+    
+```ruby
+bundle exec rake db:drop
+```
+--
+
+
+To **open the console**:
+--
+
+```ruby
+rake console
+```
+--
+
+
+You can edit the Rakefile to make your default console be Pry rather than IRB.
+--
+
+
+It is good practice to open the console immediately after creating a table, in order to see whether the corresponding class exists or not, and to test some of the built-in methods. For instance:
+--
+
+    
+```ruby
+Client.create(name: "Pete")
+```
+---
+
+### Two Other Small Points
+--
+
+
+ 1. Persistence vs. objects existing only in memory
+--
+
+
+    * `obj.save` will persist a record modified in Ruby.
+--
+
+       Until you persist it, it exists only in memory and you will be unable to find it in the database.
+--
+
+    * `obj.create` will create (and thereby persist) a record.
+--
+
+ 1. For now, at DBC, migration files should contain only a `def change` method; all data-entry will be done using `seed`.
+
+
+---
+
+
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>
+
+
+<!--
+
+---
+
+### Terminology Review
+
+ 1. **qqq**
+--
+: qqq
+--
+
+
+-->

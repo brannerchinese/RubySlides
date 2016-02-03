@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Dealing with Comma-Separated Values (CSV)
+## David Branner
+### 20160125
+
+---
+
+# What these slides cover
+
+ 1. What is CSV?
+--
+
+
+ 1. Two Basic Recipes for Dealing with CSV Files: Input
+--
+
+
+ 1. Two Basic Recipes for Dealing with CSV Files: Output
+
+---
+
+## What is CSV?
+--
+
+
+Comma-Separated Values (CSV) is a simple format for storing data in flat text-files.
+--
+
+
+It's not a very safe format, because if the data itself contains commas, the file can become corrupt.
+--
+
+
+Using tab-separated values is safer, since tabs rarely occur in ordinary data.
+--
+
+
+However, CSV remains widely used because it is one of the export formats used by Microsoft Excel.
+
+---
+
+## Two Basic Recipes for Dealing with CSV Files: Input
+--
+
+
+I've saved some CSV data to a file, `temp.csv`. 
+--
+
+
+To read the lines of a CSV file, use `CSV.foreach`, as illustrated below.
+--
+
+
+Note that Ruby's `CSV` library doesn't have a `map` method built-in, so we have to declare an array first and successively push each line into it.
+--
+
+```ruby
+require 'CSV'         # CSV is not in the standard library
+content = []          # CSV does not have a `map` method
+filename = 'temp.csv'
+
+CSV.foreach(filename) do |line|
+  content.push(line)
+end
+```
+
+---
+
+## Two Basic Recipes for Dealing w/ CSV Files: Input, cont'd
+--
+
+
+Here are the first two elements of the `content` array that we filled:
+
+```ruby
+[2] pry(main)> content[0]
+=> ["id", "first_name", "last_name", "email", "phone", "created_at"]
+[3] pry(main)> content[1]
+=> ["1",
+ "Lani",
+ "Rollins",
+ "blandit@quam.com",
+ "1-633-389-7173",
+ "2012-05-10T03:53:40-07:00"]
+```
+--
+
+For comparison, here are the first two lines of the original file:
+--
+
+```
+id,first_name,last_name,email,phone,created_at
+1,Lani,Rollins,blandit@quam.com,1-633-389-7173,2012-05-10T03:53:40-07:00
+```
+--
+
+The `CSV` class converts each comma-separated item to a discrete element in the output subarray.
+
+---
+
+## Two Basic Recipes for Dealing with CSV Files: Output
+--
+
+For output, I first create an array of hashes, and then pass each hash in turn to a `CSV` writer-object (called `csv` here), also passing an output-filename and the string `'wb'` to it for writing in bytes:
+
+```ruby
+items = [{first: 'primero', second: 'segundo', third: 'tercera'},
+  {first: 'pierwszy', second: 'sekunda', third: 'trzeci'},
+  {first: '第一', second: '第二', third: '第三'},
+]
+
+CSV.open('output.csv', 'wb') do |csv|
+  items.each { |item| csv << [ item.values ] }
+end
+```
+--
+
+
+Here's the content of the output file `output.csv`:
+--
+
+```
+primero,segundo,tercera
+pierwszy,sekunda,trzeci
+第一,第二,第三
+```
+--
+
+Notice that the `CSV` object **takes an array of strings as input** on each iteration. 
+--
+
+
+If you wish to pass just a single string to the `CSV` object, you must still place it into an array: `csv << [ "sample string here" ]`.
+
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

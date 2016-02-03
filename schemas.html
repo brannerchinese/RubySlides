@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Core Concepts of DB Schema Design
+## David Branner
+### 20160127
+
+---
+
+### What these slides cover
+
+ 1. "Persisting" (Storing and Retrieving) Data
+--
+
+
+ 1. Getting from a CSV File to a Database
+--
+
+
+ 1. Schema
+--
+
+
+ 1. How do We Represent a Schema?
+--
+
+
+ 1. How Are Tables Related to One Another?
+--
+
+
+ 1. How Are Tables Related to Classes?
+--
+
+
+ 1. Persisting a Schema for Later Reference
+--
+
+
+ 1. Other Resources
+---
+
+### "Persisting" (Storing and Retrieving) Data
+--
+
+
+For this you will encounter several different techniques:
+--
+
+
+ 1. text files
+--
+
+
+    * plain text, CSV, other separators
+--
+
+ 1. databases
+--
+
+    * SQL, ActiveRecord
+--
+
+ 1. JSON
+--
+: a format (native to JavaScript) of great importance on the web
+--
+
+
+People use the expression "**C**reate, **R**ead, **U**pdate, **D**elete" ("CRUD") to describe the basic capabilities of a database or other forms of persistent storage.
+---
+
+### Getting from a CSV File to a Database
+
+Take a look at part of a `.csv` file that might be from your To-do List challenge:
+--
+
+
+```
+1,Walk the cat
+2,Go to the gym
+3,Buy groceries for the week
+4,Call Penelope
+5,Finish code challenge
+```
+--
+
+In the Ruby program, each of those lines became one instance of the `Task` class (or something similarly named).
+--
+
+
+A single line of information in a CSV file is called a "record" and typically corresponds to a single instance of some class in the program that reads the file.
+
+---
+### Schema
+
+--
+
+
+A "schema" is a data model.
+--
+
+
+One of the key things we do when designing a schema is to decide how different things are going to be related to each other.
+--
+
+
+To-do list — what did the data consist of (in the early versions of the challenge)?
+--
+
+
+ * ID number
+--
+
+
+ * task
+--
+
+
+Each ID number had one task associated with it, and each task had one ID number associated with it.
+--
+
+
+That kind of relationship is called "one-to-one". 
+--
+
+
+One task corresponds to one ID, and one ID corresponds to one task.
+---
+
+### How do We Represent a Schema and its Relationships?
+--
+
+
+We use the Unified Modeling Language (**UML**, dating from mid-1990s) diagrams to model this. 
+--
+The relationship we are talking about (to-do list tasks) looks like this in UML:
+--
+
+
+![Tasks](images/tasks_one-to-one-relationship.png)
+--
+
+
+This diagram represents a "table" in a relational database. 
+--
+
+
+A table in a relational database corresponds to a class in object-oriented programming. 
+--
+Here, it corresponds to our `Task` class.
+--
+
+
+The horizontal divisions are the "fields" or "columns". 
+--
+
+
+One task field corresponds to one ID field, and one ID field corresponds to one task field. 
+--
+
+
+Fields correspond to attributes in object-oriented programming.
+---
+
+### How do We Represent a Schema, cont'd
+
+
+Let's compare the class and the table:
+--
+
+```ruby
+class Task
+  attr_accessor :id, :task
+  def initialize(args={})
+    @task = args.fetch(:task, nil)
+  end
+end
+```
+--
+
+![Tasks](images/tasks_one-to-one-relationship.png)
+--
+
+
+We will name it `Tasks` — notice that it's plural! 
+--
+In other words:
+--
+
+
+| Object-Oriented Programming | | | | | Relational Database  | | | Function |
+|:---------------------------:| | | | | :-------------------:| | |:-:|
+| class (name singular)       | | | | |  table (name plural) | | |  blueprint |
+| object                      | | | | |  record              | | | instance |
+| attribute                   | | | | |  field               | | |  piece of data |
+
+---
+
+### How do We Represent a Schema, cont'd
+
+
+So we have a `Tasks` table (again, the convention is for it to be plural):
+--
+
+
+![Task](images/tasks_one-to-one-relationship.png)
+--
+
+
+Our to-do list project also had a `TodoList` class, so let's create one. 
+--
+
+We will get a `TodoLists` table.
+--
+
+
+![TodoList](images/todolists_one-to-one-relationship.png)
+--
+
+
+It also has an ID field, since every table automatically gets its own ID. 
+--
+
+Notice that the field for tasks in this table is called `task_id`.
+---
+
+### How do We Represent a Schema, cont'd
+
+
+An ID turns out to be the key to making relationships between tables. 
+--
+
+
+In the Ruby to-do list, one way to implement it was to instantiate `Task` objects and then store them in a `TodoList.tasks` attribute (an array).
+--
+
+```ruby
+class TodoList
+  attr_accessor :id, :tasks
+  def initialize(args={})
+    @tasks = args.fetch(:tasks, Array.new)
+  end
+end
+```
+--
+
+![TodoList](images/todolists_one-to-one-relationship.png)
+--
+
+
+(**Plural name!**, even though the class-name was singular!) 
+--
+The field `TodoLists.task_id` is the table's way of hinting that `Tasks` records
+--
+, each represented by a `Tasks.id`
+--
+, can be placed in a `TodoLists` record
+--
+, in the same way `Task` objects could be inserted into the array `TodoList.tasks` in the Ruby project.
+---
+
+### How do We Represent a Schema, cont'd
+
+
+Here is how we state the relationship between those things relationally:
+--
+
+
+![TodoList to Tasks](images/todolists-to-tasks_one-to-many-relationship.png)
+--
+
+
+One to-do list can have multiple tasks but each task can only belong to one to-do list. So each task record has a field for the to-do list to which it belongs.
+--
+
+
+A table's ID number is normally used as its "**primary key**" — by which individual records are accessed. 
+--
+
+
+If room is made for it in another table, it is called a **foreign key** in that table, and it enables us to work the relationship between the two tables.
+--
+
+
+---
+
+### How Are Tables Related to One Another?
+--
+
+
+In order to decide how any two tables are related, we always must ask: 
+--
+
+
+of the categories X and Y that the tables represent, 
+--
+
+ * how many of X can Y have? 
+--
+and 
+
+
+ * how many of Y can X have?
+
+---
+
+### How Are Tables Related to One Another? (cont'd)
+
+
+ 1. **One-to-one** relationship
+--
+
+
+    * Normally everything is in one table, which is named as a **plural noun**: `Tasks`, `TodoLists`, `People`, `Numbers`, `Brokers`, `Customers`.
+
+
+ 1. **One-to-many** relationship
+--
+
+
+    * Example: real estate brokers and customers. One broker may have many customers, but (under the rules of our imaginary company) no customer is allowed to work with more than one broker at once.
+--
+
+    * **Foreign key** accesses the ID (primary key) of another table.
+--
+
+ 1. **Many-to-many** relationship
+--
+
+
+    * Example: people and phone numbers. 
+--
+
+    * We are **not allowed simply to connect two tables directly** if they are many-to-many. 
+--
+We need a third table — a **join table** or junction table — to model this. 
+--
+**The relationship itself gets a special table.**
+--
+
+    * Join tables are named **as the combined singular noun-forms** of the tables being joined: from `People` and `Numbers` we make **`Person_Number`**.
+
+---
+
+### How Are Tables Related to One Another? (cont'd)
+
+
+More examples — try and categorize them
+--
+
+
+ * word : reversal_of_word
+--
+
+ * bookstore : book
+--
+
+ * heads : tails
+--
+
+ * person : phone_number
+--
+
+ * dog-walkers : dogs
+--
+
+ * person : social_security_number
+--
+
+ * author : book
+--
+
+ * bank customer : bank product
+--
+
+ * person : parent_of_person
+--
+
+ * person : last_name
+--
+
+ * hotel : guest
+
+---
+
+### How Are Tables Related to Classes?
+--
+
+| Object-Oriented Programming | | | | | Relational Database  | | | Function |
+|:---------------------------:| | | | | :-------------------:| | |:-:|
+| class (name singular)       | | | | |  table (name plural) | | |  blueprint |
+| object                      | | | | |  record              | | | instance |
+| attribute                   | | | | |  field               | | |  piece of data |
+--
+
+
+**One-to-one Relationship**:
+
+![Tasks](images/tasks_one-to-one-relationship.png)
+--
+
+
+```ruby
+class Task                                     # = table Tasks
+  attr_accessor :id, :task
+  def initialize(args={})
+    @task = args.fetch(:task, nil)             # = column Tasks.task
+  end
+end
+```
+
+---
+#### How Are Tables Related to Classes? (cont'd) — one-to-many relationship
+
+
+![TodoList to Tasks](images/todolists-to-tasks_one-to-many-relationship.png)
+--
+
+```ruby
+class Task                                     # = table Tasks
+  attr_accessor :id, :task
+  def initialize(args={})
+    @task = args.fetch(:task, nil)             # = column Tasks.task
+  end
+end
+
+class TodoList                                 # = table TodoLists
+  attr_accessor :id, :tasks
+  def initialize(args={})
+    @tasks = args.fetch(:tasks, Array.new)     # = column TodoLists.task_id
+  end
+  
+  def add_task(task)
+    @tasks << task                             # implied by TodoLists.task_id
+  end
+end
+```
+---
+
+#### How Are Tables Related to Classes? (cont'd) — many-to-many (simplified!)
+
+
+For illustrating the many-to-many relationship, I'm going to simplify things in order to make things clearer and also to get everything to fit on one slide.
+--
+
+
+ 1. Add a `Person` class and a `People` table, creating a need for a join table in order to embody the many-to-many relationship.
+--
+
+
+ 1. Change the `TodoLists` table to a proper join table, named `Person_Task`.
+--
+
+
+ 1. Change the text of each `Task` object from `Task.task` to `Task.item`, so that we don't get confused over what `task` refers to in different contexts.
+--
+
+
+So the schema now looks like this:
+--
+
+
+![Person_Task Join Table](images/people-to-person_task-to-tasks_many-to-many-relationship.png)
+--
+
+And the code looks like this (sorry for the cramped slide!):
+---
+
+#### How Are Tables Related to Classes? (cont'd) — many-to-many (simplified!)
+
+
+![Person_Task Join Table](images/people-to-person_task-to-tasks_many-to-many-relationship.png)
+--
+
+```ruby
+class Task                                     # = table Tasks
+  attr_accessor :id, :item, :people
+  def initialize(args={})
+    @item = args.fetch(:item, nil)             # = column Tasks.item
+    @people = Array.new                        # implied by Person_Task.person_id
+  end
+  def add_person(person)
+    @people << person                          # implied by Person_Task.person_id
+  end
+end
+
+class Person                                   # = table People
+  attr_accessor :id, :name, :tasks
+  def initialize(args={})
+    @name = args.fetch(:name, nil)             # = column TodoLists.name
+    @tasks = Array.new                         # implied by Person_Task.task_id
+  end
+  def add_task(task)
+    @tasks << task                             # implied by Person_Task.task_id
+  end
+end
+```
+---
+
+#### How Are Tables Related to Classes? (cont'd) — many-to-many (simplified!)
+--
+
+
+    
+
+### Make sure you understand how every part of this code is related to every part of the schema, and vice versa.
+--
+
+    
+
+## Much of the work you will do in coming weeks depends on your understanding of the few slides labelled "How Are Tables Related to Classes?".
+
+---
+### Persisting a Schema for Later Reference
+
+Here is the window that opens to generate XML for your schema:
+
+![XML for Person_Task Join Table](images/xml_for_people-to-person_task-to-tasks_many-to-many-relationship.png)
+---
+### Persisting a Schema for Later Reference, cont'd
+
+
+Dev Bootcamp challenges will normally require you to submit a screenshot of your schema. 
+--
+
+
+But you can't modify your work later, or share it with collaborators for editing, if all you have is a screenshot.
+--
+
+
+So I recommend generating the XML for your schema and storing it.
+--
+
+
+I recommend this for your own convenience — Dev Bootcamp will still require you to submit a screenshot.
+--
+
+
+Remember to use the original [UML Tool of Ondřej Žára](http://ondras.zarovi.cz/sql/demo/) for generating schemata
+--
+ — the Dev Bootcamp clone is not up to date as of this writing and the XML functionality doesn't work perfectly.
+--
+
+
+To generate the code, click the "Save / Load" button at upper right, then "Save XML" in the modal that opens. 
+--
+The code should appear in the large text box at the bottom of the modal
+--
+ — I just copy and paste into a file. 
+--
+You'll see other options — trying them would be a good way to learn what they do.
+--
+
+
+Here is a [link to the code used in these slides](code/people-to-person_task-to-tasks_many-to-many-relationship.xml).
+
+---
+
+### Other Resources
+--
+
+
+I like the [TekstenUitleg](http://en.tekstenuitleg.net/articles/software/database-design-tutorial) database-design tutorial for its clear explanations. 
+--
+
+
+It was written by Ruben van Loen (accessed 20160110).
+
+
+---
+
+### Terminology Review
+--
+
+
+ 1. **primary key**
+--
+: the ID of a table — it is normally an integer
+--
+
+
+ 1. **foreign key**
+--
+: the ID of some other table, when used in our table — also an integer
+--
+
+
+ 1. **one-to-many**
+--
+: a relationship in which one table contains as foreign key the ID of another
+--
+. A non-join table is customarily named as a plural noun.
+--
+
+
+ 1. **many-to-many**
+--
+: a relationship requiring a join table connecting two other tables
+--
+. Join-tables are customarily named by combining singular nouns: `Author_Book`, `Person_Parent`.
+--
+
+
+ 1. **schema**
+--
+: a model of data, showing relationships between different tables and their fields
+--
+. Trivia item: the traditional Greek plural of this word is _schemata_, although we normally say _schemas_ in English.
+
+
+ 1. **persist**
+--
+: (transitive verb): to cause to persist, to make permanent
+--
+
+
+ 1. **CRUD**
+--
+: acronym for the four basic functions a database (or other forms of persistent storage) can perform: **C**reate, **R**ead, **U**pdate, **D**elete.
+--
+
+
+<!-- -->Note: the principles of naming relational database tables described here are not universal, but they're the practice at Dev Bootcamp.
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>

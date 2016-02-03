@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <!-- Style below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      li p { line-height: 1.25em; }
+      .red { color: #fa0000; }
+      .large { font-size: 2em; }
+      a, a > code {
+        color: rgb(249, 38, 114);
+        text-decoration: none;
+      }
+      code {
+        background: #e7e8e2;
+        border-radius: 5px;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-code-line-highlighted     { background-color: #373832; }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
+      .pull-right ~ p {
+        clear: both;
+      }
+      #slideshow .slide .content code {
+        font-size: 0.8em;
+      }
+      #slideshow .slide .content pre code {
+        font-size: 0.9em;
+        padding: 15px;
+      }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      /* Slide-specific styling */
+      #slide-inverse .footnote {
+        bottom: 12px;
+        left: 20px;
+      }
+      #slide-how .slides {
+        font-size: 0.9em;
+        position: absolute;
+        top:  151px;
+        right: 140px;
+      }
+      #slide-how .slides h3 {
+        margin-top: 0.2em;
+      }
+      #slide-how .slides .first, #slide-how .slides .second {
+        padding: 1px 20px;
+        height: 90px;
+        width: 120px;
+        -moz-box-shadow: 0 0 10px #777;
+        -webkit-box-shadow: 0 0 10px #777;
+        box-shadow: 0 0 10px #777;
+      }
+      #slide-how .slides .first {
+        background: #fff;
+        position: absolute;
+        top: 20%;
+        left: 20%;
+        z-index: 1;
+      }
+      #slide-how .slides .second {
+        position: relative;
+        background: #fff;
+        z-index: 0;
+      }
+
+      /* Two-column layout */
+      .left-column {
+        color: #777;
+        width: 20%;
+        height: 92%;
+        float: left;
+      }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+          color: #000;
+        }
+      .right-column {
+        width: 75%;
+        float: right;
+        padding-top: 1em;
+      }
+    </style>
+
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Modules and Classes
+## David Branner
+### 20160122
+
+---
+
+### What Is in These Slides
+--
+
+
+You've encountered modules and classes in Phase 0. 
+--
+
+
+Both are ways of fostering **code reuse** and **modularization**.
+--
+
+
+ 1. State (data)
+--
+
+
+ 1. Using a Module or Class
+--
+
+
+ 1. Naming a Module or Class
+--
+
+
+ 1. Terminology Review
+--
+
+
+**Jargon warning** 
+--
+— There is a lot of special terminology ahead.
+
+---
+
+### State
+--
+
+
+"State" means any stored information (data).
+--
+
+
+In practice, it means especially data that can be modified, in contrast to constants, which cannot.
+--
+
+
+(Constants conventionally have their names capitalized in Ruby.)
+--
+
+
+Differences between modules and classes with respect to state:
+--
+
+ 1. A module provides methods and constants.
+--
+
+
+ 1. A class provides methods, constants, and **state**.
+--
+
+
+**The difference between a module and a class is a key idea in your expertise as a Ruby coder** 
+--
+and you should always ask yourself whether a method or a group of methods ought to be in a module or a class.
+--
+
+
+How to tell which to use is discussed under **"Using a Module or Class"**, later in these slides. 
+--
+In the mean time…
+
+
+State is stored in the form of "attributes", of which there are different kinds. 
+--
+
+Normally we are talking about "instance attributes", which are marked with a single `@` before the variable-name.
+
+
+
+---
+### State, cont'd
+
+One of the key things that some methods do in a class is specify how to "set" (write) or "get" (read) instance variables. 
+--
+Here is a "getter" for an instance variable `color` — it simply returns the value of the variable:
+--
+
+```ruby
+def color
+  @color
+end
+```
+--
+
+And here is a "setter" for the same variable:
+--
+
+```ruby
+def color=(some_color_name)
+  @color = some_color_name
+end
+```
+--
+
+We have shorthand syntax for both kinds of method. 
+--
+For a getter:
+--
+
+```ruby
+attr_reader :color
+```
+--
+
+Notice that we are using a symbol here. 
+--
+(If you have more than one variable to write getters for, separate the symbols by commas.)
+--
+
+
+For a setter, the keyword is `attr_writer`. 
+--
+If you want both a setter and a getter for some variable, use `attr_attribute`.
+
+---
+### State, cont'd
+
+In practice, you will use this syntax most of the time:
+--
+
+```ruby
+class MyClass
+  attr_reader :get_me              # Can only read, not write.
+  attr_writer :set_me              # Can only write, not read.
+  attr_accessor :set_n_get_me      # Can both read and write.
+end
+```
+--
+
+If you want to set instance variables at the moment you create an object, they should become arguments to the `initialize` method:
+--
+
+```ruby
+class MyClass
+  attr_reader :get_me              # Can only read, not write.
+  attr_writer :set_me              # Can only write, not read.
+  attr_accessor :set_n_get_me      # Can both read and write.
+
+  def initialize(args={})
+    @set_n_get_me = args.fetch(:first, nil) # Fully accessible outside class.
+    @set_me = args.fetch(:second, nil)      # Only read from within class.
+    @get_me = args.fetch(:third, nil)       # Only changed within class.
+  end
+end
+```
+
+etc.
+
+---
+### State, cont'd
+
+
+Accessing the three different kinds of attributes we just defined:
+--
+
+```ruby
+[2] pry(main)> m = MyClass.new({first: '1st', second: '2nd', third: '3rd'})
+=> #<MyClass:0x007fea4b101bd8 @get_me="3rd", @set_me="2nd", @set_n_get_me="1st">
+
+[3] pry(main)> m.set_n_get_me
+=> "1st"
+[4] pry(main)> m.set_me
+NoMethodError: undefined method `set_me' for #<MyClass:0x007fea4b101bd8>
+Did you mean?  set_me=
+               get_me
+from (pry):104:in `__pry__'
+[5] pry(main)> m.get_me
+=> "3rd"
+```
+
+---
+### State, cont'd
+
+Note that there _is_ a way to access an attribute marked as `attr_writer`: 
+--
+
+write a method to do it — that's allowed, because it's happening within the class.
+--
+
+
+Here's an example of using a `to_s` to _display_ an `attr_writer` attribute (without actually returning it, though of course you could do that, too):
+--
+
+```ruby
+class MyClass
+  attr_writer :set_me              # Can only write, not read.
+
+  def initialize(set_me)
+    @set_me = set_me           # Can only be accessed within class.
+  end
+
+  def to_s                             # Convenient way of displaying this.
+     'set_me: ' + @set_me
+  end
+end
+```
+--
+
+In actual use:
+--
+
+```ruby
+[1] pry(main)> m = MyClass.new('2nd')
+=> #<MyClass:0x007fea4b0528b8 @set_me="2nd">
+[2] pry(main)> m.set_me
+NoMethodError: undefined method `set_me' for #<MyClass:0x007fea4b0528b8 @set_me="2nd"> ...
+[3] pry(main)> m.to_s
+=> "set_me: 2nd"
+```
+
+---
+
+### Using a Module or Class
+--
+
+
+ 1. A module is "mixed in", using `include`. 
+--
+ Any number of modules may be mixed in to a single program, 
+--
+(or function, or module, or class).
+--
+
+    ```ruby
+    include MyModule
+    include AnotherModule
+    include FurtherModule
+    ...
+    ```
+--
+
+ 1. A class is "instantiated" as an "instance", using `new`. 
+--
+The class is a blueprint; the instance is one particular case made from the blueprint.
+--
+
+    ```ruby
+    a = Array.new
+    ```
+--
+
+    Here `a` is one particular instance of the class `Array`.
+--
+
+ 1. A class "inherits from" another class. 
+--
+
+(This is a big subject, to which we will return another day.)
+--
+ 
+    ```ruby
+    class MyClass < parent_class
+    ```
+--
+    
+    A class can only have one direct parent.
+
+---
+
+### Naming a Module or Class
+--
+
+Both classes and modules are capitalized and use `CamelCase`. 
+--
+(Functions and methods are lower-case and use `snake_case`.)
+
+ 1. Modules are conventionally named as adjectives, and tend to end in `-able`. 
+--
+
+
+    To remind yourself, two modules in the standard library are `Enumerable` and `Comparable`. 
+--
+
+ 1. Classes are usually named as nouns, because each is an object. 
+--
+
+
+    Everything in Ruby is an object 
+--
+(including the program itself). 
+--
+
+
+    But, in practice, most of the time you'll find that an object is normally an instance of some class.
+
+---
+
+### Terminology Review
+
+ 1. **state**
+--
+: any stored information (data)
+--
+
+
+ 1. **constant**
+--
+: data that will never need to be modified
+--
+
+
+ 1. **attribute**
+--
+: state belonging to an object
+--
+
+
+ 1. **instance**
+--
+: an object constructed by some particular class
+--
+
+
+ 1. **instantiate**
+--
+: to construct an object
+--
+
+
+ 1. **object**
+--
+: an instance of some class; more generally, a location in memory containing data or functionality
+--
+
+
+ 1. **setter**
+--
+: a kind of method that assigns data to an attribute
+--
+
+
+ 1. **getter method**
+--
+: a kind of method that retrieves data stored in an attribute
+--
+
+
+ 1. **`attr_writer`**
+--
+: an attribute for which a setter but not a getter is allowed
+--
+
+
+ 1. **`attr_reader`**
+--
+: an attribute for which a getter but not a setter is allowed
+--
+
+
+ 1. **`attr_accessor`**
+--
+: an attribute for which both setter and getter are allowed
+
+---
+
+class: center, middle
+
+## END
+
+    </textarea>
+    <!-- Scripts below adapted from view-source:http://gnab.github.io/remark/
+          20160116 -->
+
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script>
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="https://gnab.github.io/remark/remark.language.js"></script>
+    <!-- Original highlightStyle on Remark site: monokai 
+         Similar:                tomorrow-night arta
+         DPB also likes:         idea zenburn sunburst ascetic github
+         Very blue:              far 
+         Apparently not working: rainbow solarized_light solarized_dark
+                                 vs -->
+    <script>
+      var slideshow = remark.create({
+          highlightStyle: 'zenburn',
+          highlightLanguage: 'remark',
+          highlightLines: true
+        }) ;
+    </script>
+  </body>
+</html>
